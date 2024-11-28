@@ -6,20 +6,15 @@ import { ApiCommands } from '@caxperts/universal.api/Util/Enums';
 async function openLink() {
 
   try{
-    const scene = (await Application.getInstance().Scenes3d.get())[0];
+    const runtimeInUPV = Application.getInstance().available();
+    console.log(runtimeInUPV);
+    const scene = (await Application.getInstance().ScenesPid.get())[0];
     const filter =  scene.DefaultFilter;
-    filter.Condition = 'Name=D-240';
+    filter.Condition = 'Equipment ITEMTAG=D-240';
+    const command = filter.createCommand(ApiCommands.OpenIntelliPidDrawings);
+    await Api.get().sendCommand(command);
     await filter.select();
     await filter.fit();
-    
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    const targetCommand = new CaxApiCommand('Target');
-    targetCommand.commandParameters.push('IntelliPid');
-    await Api.get().sendCommandWithReturnType(targetCommand);
-    await Api.get().sendCommand(new CaxApiCommand(ApiCommands.OpenIntelliPidDrawings));
-    await Api.get().sendCommand(new CaxApiCommand(ApiCommands.Select));
-    await Api.get().sendCommand(new CaxApiCommand(ApiCommands.Fit));
   }
   catch(err){
     Application.getInstance().showMessage(err as string);
